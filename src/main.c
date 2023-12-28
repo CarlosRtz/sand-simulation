@@ -17,7 +17,7 @@ double cursor_y;
 double world_x;
 double world_y;
 
-float cursor_r = 0.2;
+float cursor_r = 0.1;
 int pressed_left_btn = 0;
 int pressed_right_btn = 0;
 uint8_t selected_particle = sand_id;
