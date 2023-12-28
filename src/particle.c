@@ -36,9 +36,9 @@ void update_simulation(){
         int dir = y % 2 == 0;
         for(int x = dir ? 0 : simulation->width - 1; dir ? x < simulation->width : x >= 0; dir ? x++ : x--){
             int i = get_index(x, y);
-            particle_t p = simulation->particles[i];
-            if(!p.updated){
-                p.update(&p, x, y);
+            particle_t *p = &simulation->particles[i];
+            if(!p->updated){
+                p->update(p, x, y);
             }
         }
     }
@@ -134,57 +134,68 @@ void update_empty(particle_t *p, int x, int y){
 // Try moving bellow or diagonals
 // Increse y speed when falling
 void update_sand(particle_t *p, int x, int y){
-    float max_speed_y = 10.0;
-    if(p->velocity[1] > 0.0){
-        p->velocity[1] = 0.0;
-    }
-    if(p->velocity[1] < max_speed_y){
-        p->velocity[1] = max_speed_y;
-    }
+    float max_speed_x = 5.0;
+    float min_speed_y = -10.0;
+
+    p->velocity[0] = p->velocity[0] < 0.0 ? 0.0 : p->velocity[0];
+    p->velocity[1] = p->velocity[1] < min_speed_y ? min_speed_y : p->velocity[1];
     
     int i = get_index(x, y);
-    int y_off;
+    int x_off, y_off;
     int j;
 
     // try moving bellow:
+    x_off = round(p->velocity[0]);
     y_off = round(p->velocity[1]);
-    if(in_bounds(x, y - 1 + y_off)){
-        j = get_index(x, y - 1 + y_off);
+    if(in_bounds(x + x_off, y - 1 + y_off)){
+        j = get_index(x + x_off, y - 1 + y_off);
         particle_t temp = simulation->particles[j];
         
         if(temp.id == empty_id){
+            p->velocity[0] -= 1.0;
             p->velocity[1] -= gravity;
-            p_set(simulation->particles[i], j);
+            p_set(*p, j);
             p_set(temp, i);
             return;
         }
     }
 
-    p->velocity[1] += 1.0;
+    p->velocity[0] = ((float)rand())/RAND_MAX * p->velocity[1];
+    p->velocity[0] = p->velocity[0] > max_speed_x ? max_speed_x : p->velocity[0];
+
+    p->velocity[1] += gravity;
+    if(p->velocity[1] > 0.0){
+        p->velocity[1] = 0.0;
+    }
+
+    x_off = round(p->velocity[0]);
+    y_off = round(p->velocity[1]);
+    p->velocity[0] -= 1.0;
 
     // try first diagonal
     int dir = rand() % 2 ? -1 : 1;
-    y_off = round(p->velocity[1]);
-    if(in_bounds(x + dir, y - 1 + y_off)){
-        j = get_index(x + dir, y - 1 + y_off);
+    if(in_bounds(x + (dir * x_off), y - 1)){
+        j = get_index(x + (dir * x_off), y - 1);
         particle_t temp = simulation->particles[j];
 
         if(temp.id == empty_id){
-            p_set(simulation->particles[i], j);
+            p_set(*p, j);
             p_set(temp, i);
             return;
         }
     }
 
     // try second diagonal (same thing with opposite direction)
-    if(in_bounds(x - dir, y - 1 + y_off)){
-        j = get_index(x - dir, y - 1 + y_off);
+    if(in_bounds(x + (dir * x_off), y - 1)){
+        j = get_index(x + (dir * x_off), y - 1);
         particle_t temp = simulation->particles[j];
 
         if(temp.id == empty_id){
-            p_set(simulation->particles[i], j);
+            p_set(*p, j);
             p_set(temp, i);
             return;
         }
     }
+
+    p_set(*p, i);
 }

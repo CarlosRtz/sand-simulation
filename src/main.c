@@ -1,6 +1,8 @@
 #include <GLFW/glfw3.h>
+#include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <time.h>
 #include "particle.h"
 
 int window_width = 800;
@@ -24,6 +26,7 @@ void window_size_callback(GLFWwindow *window, int width, int height);
 void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow *window, int button, int action, int mods);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+void throw_particles();
 
 int setup_window(){
     if(!glfwInit()) return -1;
@@ -115,11 +118,30 @@ int main(){
         return -1;
     }
 
+    srand(time(NULL));
     init_simulation(512, 512);
     setupGL();
 
+    double limit_fps = 1.0/60.0;
+    double last_time = glfwGetTime();
+    double reset_rand_seed = glfwGetTime();
+
     while(!glfwWindowShouldClose(window)){
-        update_simulation();
+        double now = glfwGetTime();
+        if(now - last_time > 1.0/60.0){
+            if(pressed_left_btn){
+                throw_particles();
+            }
+
+            update_simulation();
+            last_time = glfwGetTime();
+        }
+     
+        if(glfwGetTime() - reset_rand_seed > 300){
+            srand(time(NULL));
+            reset_rand_seed = glfwGetTime();
+        }
+
         render(window);
 
         glfwPollEvents();
@@ -201,4 +223,52 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
         //     clear_particles();
         // break;
     }
+}
+
+void throw_particles(){
+    double xpos = world_x + 1;
+    double ypos = world_y + 1; 
+
+    int x = round(xpos*simulation->width/2.0);
+    int y = round(ypos*simulation->height/2.0);
+
+    int rx = round(cursor_r*simulation->width/2.0);
+    int ry = round(cursor_r*simulation->height/2.0);
+
+    for(int k = 0; k < 50; k++){
+        int angle = rand() % 360;
+        float m = ((float)rand())/((float)RAND_MAX);
+        int i = round(sin( 3.1415926 *angle/180.0)*rx*m) + x;
+        int j = round(cos( 3.1415926 *angle/180.0)*ry*m) + y;
+        
+        int index = get_index(i, j);
+        switch(selected_particle){
+            case sand_id:
+                if(in_bounds(i, j) && simulation->particles[index].id == empty_id)
+                    simulation->particles[index] = new_sand();
+            break;
+            case water_id:
+                if(in_bounds(i, j) && simulation->particles[index].id == empty_id)
+                    simulation->particles[index] = new_water();
+            break;
+            case coal_id:
+                if(in_bounds(i, j) && simulation->particles[index].id == empty_id)
+                    simulation->particles[index] = new_coal();
+            break;
+            case fire_id:
+                //if(k < 30){
+                    if(in_bounds(i, j) && (simulation->particles[index].id == empty_id || simulation->particles[index].id == coal_id || simulation->particles[index].id == oil_id))
+                        simulation->particles[index] = new_fire();    
+                //}else{
+                //    if(particle_sim[index].id == empty_id)
+                //        particle_sim[index] = p_create_smoke();
+                //}  
+            break;
+            case oil_id:
+                if(in_bounds(i, j) && simulation->particles[index].id == empty_id)
+                    simulation->particles[index] = new_oil();
+            break;
+        }
+    }
+
 }

@@ -27,7 +27,7 @@ typedef struct {
     uint8_t *texture_buffer;
 } sand_simulation;
 
-#define gravity 0.5
+#define gravity 1.0
 
 extern sand_simulation *simulation;
 
