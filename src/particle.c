@@ -237,8 +237,9 @@ void update_water(particle_t *p, int x, int y){
     int dir = p->velocity[0] > 0 ? 1 : -1;
 
     // Try moving bellow
-    x_coord = x_off == 0 ? x : x;
+    x_off = round(p->velocity[0]);
     y_off = round(p->velocity[1]);
+    x_coord = x + x_off;
     if(in_bounds(x_coord, y - 1 + y_off)){
         int j = get_index(x_coord, y - 1 + y_off);
         particle_t temp = simulation->particles[j];
