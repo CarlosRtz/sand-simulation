@@ -13,7 +13,7 @@ typedef struct {
 typedef struct particle_t {
     uint8_t id;
     color_t color;
-    float velocity[2];
+    struct velocity {float x; float y;} velocity;
     float life_time;
     uint8_t updated;
 
