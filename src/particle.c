@@ -167,6 +167,7 @@ void update_empty(particle_t *p, int x, int y){
 // try moving to both lower diagonals
 #define __sand_max_spread 2.0
 #define __sand_max_fall_speed -10.0
+#define __sand_sink_speed -2.0
 void update_sand(particle_t *p, int x, int y){
     p->updated = 1;
     int i = get_index(x, y);
@@ -202,6 +203,8 @@ void update_sand(particle_t *p, int x, int y){
         if(temp.id == water_id || temp.id == oil_id){
             p->velocity.x *= 0.6;
             p->velocity.y -= gravity * 0.25;
+            if(p->velocity.y < __sand_sink_speed) p->velocity.y = __sand_sink_speed;
+
             p_set(*p, j);
             p_set(new_empty(), i);
             // try to take water out
@@ -249,6 +252,8 @@ void update_sand(particle_t *p, int x, int y){
         if(temp.id == water_id || temp.id == oil_id){
             p->velocity.x += dir * 0.5;
             p->velocity.y += gravity * 2;
+            if(p->velocity.y < __sand_sink_speed) p->velocity.y = __sand_sink_speed;
+
             p_set(*p, j);
             p_set(new_empty(), i);
 
@@ -286,6 +291,8 @@ void update_sand(particle_t *p, int x, int y){
         if(temp.id == water_id || temp.id == oil_id){
             p->velocity.x += -dir * 0.5;
             p->velocity.y += gravity * 2;
+            if(p->velocity.y < __sand_sink_speed) p->velocity.y = __sand_sink_speed;
+
             p_set(*p, j);
             p_set(new_empty(), i);
             // try to take water out
@@ -531,6 +538,7 @@ void update_water(particle_t *p, int x, int y){
 // but spreads less
 #define __coal_max_spread 0.0
 #define __coal_max_fall_speed -10.0
+#define __coal_sink_speed -5.0
 void update_coal(particle_t *p, int x, int y){
     p->updated = 1;
     int i = get_index(x, y);
@@ -566,6 +574,8 @@ void update_coal(particle_t *p, int x, int y){
         if(temp.id == water_id || temp.id == oil_id){
             p->velocity.x *= 0.3;
             p->velocity.y -= gravity * 0.75;
+            if(p->velocity.y < __coal_sink_speed) p->velocity.y = __coal_sink_speed;
+
             p_set(*p, j);
             p_set(new_empty(), i);
             // try to take water out
@@ -614,6 +624,8 @@ void update_coal(particle_t *p, int x, int y){
         if(temp.id == water_id || temp.id == oil_id){
             p->velocity.x += dir * 0.2;
             p->velocity.y += gravity * 1.5;
+            if(p->velocity.y < __coal_sink_speed) p->velocity.y = __coal_sink_speed;
+
             p_set(*p, j);
             p_set(new_empty(), i);
             // try to take water out
@@ -651,6 +663,8 @@ void update_coal(particle_t *p, int x, int y){
         if(temp.id == water_id || temp.id == oil_id){
             p->velocity.x += -dir * 0.2;
             p->velocity.y += gravity * 1.5;
+            if(p->velocity.y < __coal_sink_speed) p->velocity.y = __coal_sink_speed;
+
             p_set(*p, j);
             p_set(new_empty(), i);
             // try to take water out
