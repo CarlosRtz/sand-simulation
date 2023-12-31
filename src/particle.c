@@ -118,7 +118,14 @@ particle_t new_coal(){
 }
 
 particle_t new_oil(){
-    particle_t p;
+    particle_t p = {
+        .id = oil_id,
+        .color = {.r=130, .g=130, .b=105, .a=255},
+        .velocity = {.x=0.0, .y=0.0},
+        .life_time = 1,
+        .updated = 0,
+        .update = update_oil
+    };
     return p;
 }
 
@@ -239,6 +246,7 @@ void update_sand(particle_t *p, int x, int y){
 // Also try to move directly to the side
 #define __water_max_spread 8.0
 #define __water_max_fall_speed -10.0
+#define __water_sink_chance 0.10
 void update_water(particle_t *p, int x, int y){
     int i = get_index(x, y);
 
@@ -270,6 +278,19 @@ void update_water(particle_t *p, int x, int y){
             p_set(temp, i);
             return;
         }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __water_sink_chance){
+                p->life_time = 1.0;
+                p->velocity.x *= 0.3;
+                p->velocity.y -= gravity * 0.5;
+
+                temp.velocity.x = 0.0;
+                p_set(*p, j);
+                p_set(temp, i);
+                return;
+            }
+        }
     }
     
     // Try moving to the diagonal
@@ -299,6 +320,17 @@ void update_water(particle_t *p, int x, int y){
             p_set(temp, i);
             return;
         }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __water_sink_chance){
+                p->life_time = 1.0;
+                p->velocity.x += dir * 0.5;
+                p->velocity.y += gravity * 2;
+                
+                p_set(*p, j);
+                p_set(temp, i);
+            }
+        }
     }
 
     // Try opossite diagonal
@@ -317,6 +349,17 @@ void update_water(particle_t *p, int x, int y){
             p_set(*p, j);
             p_set(temp, i);
             return;
+        }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __water_sink_chance){
+                p->life_time = 1.0;
+                p->velocity.x += -dir;
+                p->velocity.y += gravity * 2;
+                
+                p_set(*p, j);
+                p_set(temp, i);
+            }
         }
     }
 
@@ -351,6 +394,17 @@ void update_water(particle_t *p, int x, int y){
                 return;
             }
         }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __water_sink_chance){
+                p->life_time = 1.0;
+                p->velocity.x += dir * 0.5;
+                p->velocity.y += gravity * 2;
+
+                p_set(*p, j);
+                p_set(temp, i);
+            }
+        }
     }
 
     // Try other side
@@ -380,6 +434,17 @@ void update_water(particle_t *p, int x, int y){
                 p_set(*p, j);
                 p_set(temp, i);
                 return;
+            }
+        }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __water_sink_chance){
+                p->life_time = 1.0;
+                p->velocity.x += -dir * 0.5;
+                p->velocity.y += gravity * 2;
+                
+                p_set(*p, j);
+                p_set(temp, i);
             }
         }
     }
@@ -476,4 +541,221 @@ void update_coal(particle_t *p, int x, int y){
     p->velocity.x = 0.0;
     p_set(*p, i);
     return;    
+}
+
+/*      UPDATE OIL PARTICLE         */
+// Try to move like water
+// but spreads less
+// hardly mixes with water
+#define __oil_max_spread 5.0
+#define __oil_max_fall_speed -10.0
+#define __oil_sink_chance 0.05
+void update_oil(particle_t *p, int x, int y){
+    int i = get_index(x, y);
+
+    // limit velocities if needed
+    if(p->velocity.x > __oil_max_spread) p->velocity.x = __oil_max_spread;
+    if(p->velocity.x < - __oil_max_spread) p->velocity.x = - __oil_max_spread;
+    if(p->velocity.y > 0.0) p->velocity.y = 0.0;
+    if(p->velocity.y < __oil_max_fall_speed) p->velocity.y = __oil_max_fall_speed;
+
+    int j;
+    int x_off, y_off, x_coord, y_coord;
+    
+    x_off = round(p->velocity.x);
+    y_off = round(p->velocity.y);
+
+    // Try moving bellow
+    x_coord = x + x_off;
+    y_coord = y - 1 + y_off;
+    
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+        
+        if(temp.id == empty_id){
+            p->life_time = 1.0;
+            p->velocity.x *= 0.8;
+            p->velocity.y -= gravity;
+            p_set(*p, j);
+            p_set(temp, i);
+            return;
+        }
+
+        if(temp.id == water_id){
+            if(rand() < RAND_MAX * __oil_sink_chance){
+                p->life_time = 1.0;
+                p->velocity.x *= 0.3;
+                p->velocity.y -= gravity * 0.5;
+
+                p_set(*p, j);
+                p_set(temp, i);
+                return;
+            }
+        }
+    }
+    
+    // Try moving to the diagonal
+    // if x velocity is 0, choose a random direction;
+    if(p->velocity.x == 0.0){
+        int r = rand() % 2 ? -1 : 1;
+        p->velocity.x = r * (float)rand()/RAND_MAX * p->velocity.y;
+        if(p->velocity.x > __water_max_spread) p->velocity.x = __water_max_spread;
+        if(p->velocity.x < - __water_max_spread) p->velocity.x = - __water_max_spread;
+    }
+
+    int dir = p->velocity.x > 0.0 ? 1 : -1;
+    x_off = round(p->velocity.x);
+
+
+    x_coord = x_off == 0 ? x + dir : x + x_off;
+    y_coord = y - 1;
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == empty_id){
+            p->life_time = 1.0;
+            p->velocity.x += dir * 0.5;
+            p->velocity.y += gravity;
+            p_set(*p, j);
+            p_set(temp, i);
+            return;
+        }
+
+        if(temp.id == water_id){
+            if(rand() < RAND_MAX * __oil_sink_chance){
+                p->life_time = 1.0;
+                p->velocity.x += dir * 0.25;
+                p->velocity.y += gravity * 2;
+                
+                p_set(*p, j);
+                p_set(temp, i);
+            }
+        }
+    }
+
+    // Try opossite diagonal
+    float old_velocity = p->velocity.x;
+    p->velocity.x *= -0.5;
+    x_off = round(p->velocity.x);
+    x_coord = x_off == 0 ? x - dir : x + x_off;
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == empty_id){
+            p->life_time = 1.0;
+            p->velocity.x += -dir * 0.5;
+            p->velocity.y += gravity;
+            p_set(*p, j);
+            p_set(temp, i);
+            return;
+        }
+
+        if(temp.id == water_id){
+            if(rand() < RAND_MAX * __oil_sink_chance){
+                p->life_time = 1.0;
+                p->velocity.x += -dir * 0.25;
+                p->velocity.y += gravity * 0.5;
+                
+                p_set(*p, j);
+                p_set(temp, i);
+            }
+        }
+    }
+
+    // Try moving to the side
+    p->life_time -= 0.005;
+    p->velocity.x = old_velocity;
+    x_off = round(p->velocity.x);
+    x_coord = x_off == 0 ? x + dir : x + x_off;
+    y_coord = y;
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == empty_id){
+            int k = abs(x_coord - x);
+            int blocked_path = 0;
+            for(int n = 1; n < k; n++){
+                if(simulation->particles[get_index(x + n, y_coord)].id != empty_id){
+                    blocked_path = 1;
+                    break;
+                }
+            }
+            if(!blocked_path){
+                if(p->life_time < 0.0){
+                    p->velocity.x *= 0.5;
+                }else{
+                    p->velocity.x += dir * 0.5;
+                }
+                p->velocity.y += gravity;
+                p_set(*p, j);
+                p_set(temp, i);
+                return;
+            }
+        }
+
+        if(temp.id == water_id){
+            if(rand() < RAND_MAX * __oil_sink_chance){
+                p->life_time = 1.0;
+                p->velocity.x += dir * 0.25;
+                p->velocity.y += gravity * 2;
+                
+                p_set(*p, j);
+                p_set(temp, i);
+            }
+        }
+    }
+
+    // Try other side
+    p->velocity.x *= -0.5;
+    x_off = round(p->velocity.x);
+    x_coord = x_off == 0 ? x - dir : x + x_off;
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == empty_id){
+            int k = abs(x_coord - x);
+            int blocked_path = 0;
+            for(int n = 1; n < k; n++){
+                if(simulation->particles[get_index(x + n, y_coord)].id != empty_id){
+                    blocked_path = 1;
+                    break;
+                }
+            }
+            if(!blocked_path){
+                if(p->life_time < 0.0){
+                    p->velocity.x *= 0.5;
+                }else{
+                    p->velocity.x -= dir * 0.5;
+                }
+                p->velocity.y += gravity;
+                p_set(*p, j);
+                p_set(temp, i);
+                return;
+            }
+        }
+
+        if(temp.id == water_id){
+            if(rand() < RAND_MAX * __oil_sink_chance){
+                p->life_time = 1.0;
+                p->velocity.x -= dir * 0.25;
+                p->velocity.y += gravity * 2;
+                
+                // temp.velocity.y = 0.0;
+                p_set(*p, j);
+                p_set(temp, i);
+            }
+        }
+    }
+
+    p->velocity.y += gravity;
+    p->velocity.x = 0.0;
+    p_set(*p, i);
+    return;
+
+    return;
 }
