@@ -130,7 +130,16 @@ particle_t new_oil(){
 }
 
 particle_t new_fire(){
-    particle_t p;
+    int g = (rand() % (200 - 100 + 1)) + 100;
+    // float life_time = ((10.0 - 1.0) * ((float)rand() / RAND_MAX)) + 1.0;
+    particle_t p = {
+        .id = fire_id,
+        .color = {.r=230, .g=g, .b=50, .a=255},
+        .velocity = {0.0, 0.0},
+        .life_time = 1.0,
+        .updated = 0,
+        .update = update_fire
+    };
     return p;
 }
 
@@ -757,5 +766,216 @@ void update_oil(particle_t *p, int x, int y){
     p_set(*p, i);
     return;
 
+    return;
+}
+
+/*      UPDATE FIRE PARTICLE        */
+// Fire have a short life time
+// Spreads by burning flamable materials
+// like coal and oil
+// Turns into steam on the water
+#define __fire_max_fall_speed -2.0
+#define __coal_burn_chance 0.01
+#define __oil_burn_chance 0.9
+void update_fire(particle_t *p, int x, int y){
+    int i = get_index(x, y);
+
+    // limit velocities if needed
+    if(p->velocity.y > 0.0) p->velocity.y = 0.0;
+    if(p->velocity.y < __fire_max_fall_speed) p->velocity.y = __fire_max_fall_speed;
+
+    int x_off, y_off, x_coord, y_coord;
+    int j;
+
+    // Try to spread bellow
+    if(in_bounds(x, y - 1)){
+        j = get_index(x, y - 1);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == coal_id){
+            if(rand() < RAND_MAX * __coal_burn_chance){
+                p->life_time = 10.0;
+                p_set(new_fire(), j);
+                simulation->particles[j].life_time = 10.0;
+            }
+        }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __oil_burn_chance){
+                p->life_time = 1.0;
+                p_set(new_fire(), j);
+            }
+        }
+    }
+
+    // Try to spread to each side
+    if(in_bounds(x + 1, y)){
+        j = get_index(x + 1, y);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == coal_id){
+            if(rand() < RAND_MAX * __coal_burn_chance){
+                p->life_time = 10.0;
+                p_set(new_fire(), j);
+                simulation->particles[j].life_time = 10.0;
+            }
+        }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __oil_burn_chance){
+                p->life_time = 1.0;
+                p_set(new_fire(), j);
+            }
+        }
+    }
+
+    if(in_bounds(x - 1, y)){
+        j = get_index(x - 1, y);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == coal_id){
+            if(rand() < RAND_MAX * __coal_burn_chance){
+                p->life_time = 10.0;
+                p_set(new_fire(), j);
+                simulation->particles[j].life_time = 10.0;
+            }
+        }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __oil_burn_chance){
+                p->life_time = 1.0;
+                p_set(new_fire(), j);
+            }
+        }
+    }
+    // Try to spread up
+    if(in_bounds(x, y + 1)){
+        j = get_index(x, y + 1);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == coal_id){
+            if(rand() < RAND_MAX * __coal_burn_chance){
+                p->life_time = 10.0;
+                p_set(new_fire(), j);
+                simulation->particles[j].life_time = 10.0;
+            }
+        }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __oil_burn_chance){
+                p->life_time = 1.0;
+                p_set(new_fire(), j);
+            }
+        }
+    }
+
+    // Try to spread on diagonals
+    if(in_bounds(x + 1, y - 1)){
+        j = get_index(x + 1, y - 1);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == coal_id){
+            if(rand() < RAND_MAX * __coal_burn_chance){
+                p->life_time = 10.0;
+                p_set(new_fire(), j);
+                simulation->particles[j].life_time = 10.0;
+            }
+        }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __oil_burn_chance){
+                p->life_time = 1.0;
+                p_set(new_fire(), j);
+            }
+        }
+    }
+
+    if(in_bounds(x - 1, y - 1)){
+        j = get_index(x - 1, y - 1);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == coal_id){
+            if(rand() < RAND_MAX * __coal_burn_chance){
+                p->life_time = 10.0;
+                p_set(new_fire(), j);
+                simulation->particles[j].life_time = 10.0;
+            }
+        }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __oil_burn_chance){
+                p->life_time = 1.0;
+                p_set(new_fire(), j);
+            }
+        }
+    }
+
+    if(in_bounds(x + 1, y + 1)){
+        j = get_index(x + 1, y + 1);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == coal_id){
+            if(rand() < RAND_MAX * __coal_burn_chance){
+                p->life_time = 10.0;
+                p_set(new_fire(), j);
+                simulation->particles[j].life_time = 10.0;
+            }
+        }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __oil_burn_chance){
+                p->life_time = 1.0;
+                p_set(new_fire(), j);
+            }
+        }
+    }
+
+    if(in_bounds(x - 1, y + 1)){
+        j = get_index(x - 1, y + 1);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == coal_id){
+            if(rand() < RAND_MAX * __coal_burn_chance){
+                p->life_time = 10.0;
+                p_set(new_fire(), j);
+                simulation->particles[j].life_time = 10.0;
+            }
+        }
+
+        if(temp.id == oil_id){
+            if(rand() < RAND_MAX * __oil_burn_chance){
+                p->life_time = 1.0;
+                p_set(new_fire(), j);
+            }
+        }
+    }
+
+    // try to move bellow
+    x_off = round(p->velocity.x);
+    y_off = round(p->velocity.y);
+    x_coord = x + x_off;
+    y_coord = y - 1 + y_off;
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+        
+        if(temp.id == empty_id){
+            p->velocity.y -= gravity * 0.25;
+            p->life_time -= 0.030;
+            if(p->life_time < 0.0){
+                *p = new_empty();
+            }
+            p_set(*p, j);
+            p_set(temp, i);
+            return;
+        }
+    }
+
+    p->life_time -= 0.030;
+    p->velocity.y += gravity;
+    if(p->life_time < 0.0){
+        *p = new_empty();
+    }
+    p_set(*p, i);
     return;
 }

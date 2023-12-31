@@ -257,8 +257,8 @@ void throw_particles(){
             break;
             case fire_id:
                 //if(k < 30){
-                    if(in_bounds(i, j) && (simulation->particles[index].id == empty_id || simulation->particles[index].id == coal_id || simulation->particles[index].id == oil_id))
-                        simulation->particles[index] = new_fire();    
+                if(in_bounds(i, j) && (simulation->particles[index].id == empty_id || simulation->particles[index].id == coal_id || simulation->particles[index].id == oil_id))
+                    simulation->particles[index] = new_fire();    
                 //}else{
                 //    if(particle_sim[index].id == empty_id)
                 //        particle_sim[index] = p_create_smoke();
