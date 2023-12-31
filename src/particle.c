@@ -57,7 +57,6 @@ int get_index(int x, int y){
 }
 
 void p_set(particle_t p, int i){
-    p.updated = 1;
     simulation->particles[i] = p;
 
     int j = i * 4;
@@ -169,6 +168,7 @@ void update_empty(particle_t *p, int x, int y){
 #define __sand_max_spread 2.0
 #define __sand_max_fall_speed -10.0
 void update_sand(particle_t *p, int x, int y){
+    p->updated = 1;
     int i = get_index(x, y);
 
     // limit velocities if needed
@@ -198,6 +198,26 @@ void update_sand(particle_t *p, int x, int y){
             p_set(temp, i);
             return;
         }
+
+        if(temp.id == water_id || temp.id == oil_id){
+            p->velocity.x *= 0.6;
+            p->velocity.y -= gravity * 0.25;
+            p_set(*p, j);
+            p_set(new_empty(), i);
+            // try to take water out
+            for(int col = -10; col <= 10; col++){
+                for(int row = 0; row <= 10; row++){
+                    if(in_bounds(row, col)){
+                        int index = get_index(x_coord + col, y_coord + row);
+                        if(simulation->particles[index].id == empty_id){
+                            p_set(temp, index);
+                            return;
+                        }
+                    }
+                }
+            }
+            return;
+        }
     }
 
     // Try moving to the diagonal
@@ -225,6 +245,27 @@ void update_sand(particle_t *p, int x, int y){
             p_set(*p, j);
             p_set(temp, i);
         }
+
+        if(temp.id == water_id || temp.id == oil_id){
+            p->velocity.x += dir * 0.5;
+            p->velocity.y += gravity * 2;
+            p_set(*p, j);
+            p_set(new_empty(), i);
+
+            // try to take water out
+            for(int row = 0; row <= 10; row++){
+                for(int col = -10; col <= 10; col++){
+                    if(in_bounds(row, col)){
+                        int index = get_index(x_coord + col, y_coord + row);
+                        if(simulation->particles[index].id == empty_id){
+                            p_set(temp, index);
+                            return;
+                        }
+                    }
+                }
+            }
+            return;
+        }
     }
 
     // Try opossite diagonal
@@ -240,6 +281,26 @@ void update_sand(particle_t *p, int x, int y){
             p->velocity.y += gravity;
             p_set(*p, j);
             p_set(temp, i);
+        }
+    
+        if(temp.id == water_id || temp.id == oil_id){
+            p->velocity.x += -dir * 0.5;
+            p->velocity.y += gravity * 2;
+            p_set(*p, j);
+            p_set(new_empty(), i);
+            // try to take water out
+            for(int col = -10; col <= 10; col++){
+                for(int row = 0; row <= 10; row++){
+                    if(in_bounds(row, col)){
+                        int index = get_index(x_coord + col, y_coord + row);
+                        if(simulation->particles[index].id == empty_id){
+                            p_set(temp, index);
+                            return;
+                        }
+                    }
+                }
+            }
+            return;
         }
     }
 
@@ -257,6 +318,7 @@ void update_sand(particle_t *p, int x, int y){
 #define __water_max_fall_speed -10.0
 #define __water_sink_chance 0.10
 void update_water(particle_t *p, int x, int y){
+    p->updated = 1;
     int i = get_index(x, y);
 
     // limit velocities if needed
@@ -470,6 +532,7 @@ void update_water(particle_t *p, int x, int y){
 #define __coal_max_spread 0.0
 #define __coal_max_fall_speed -10.0
 void update_coal(particle_t *p, int x, int y){
+    p->updated = 1;
     int i = get_index(x, y);
 
     // limit velocities if needed
@@ -497,6 +560,26 @@ void update_coal(particle_t *p, int x, int y){
             p->velocity.y -= gravity;
             p_set(*p, j);
             p_set(temp, i);
+            return;
+        }
+
+        if(temp.id == water_id || temp.id == oil_id){
+            p->velocity.x *= 0.3;
+            p->velocity.y -= gravity * 0.75;
+            p_set(*p, j);
+            p_set(new_empty(), i);
+            // try to take water out
+            for(int col = -10; col <= 10; col++){
+                for(int row = 0; row <= 10; row++){
+                    if(in_bounds(row, col)){
+                        int index = get_index(x_coord + col, y_coord + row);
+                        if(simulation->particles[index].id == empty_id){
+                            p_set(temp, index);
+                            return;
+                        }
+                    }
+                }
+            }
             return;
         }
     }
@@ -527,6 +610,26 @@ void update_coal(particle_t *p, int x, int y){
             p_set(temp, i);
             return;
         }
+
+        if(temp.id == water_id || temp.id == oil_id){
+            p->velocity.x += dir * 0.2;
+            p->velocity.y += gravity * 1.5;
+            p_set(*p, j);
+            p_set(new_empty(), i);
+            // try to take water out
+            for(int col = -10; col <= 10; col++){
+                for(int row = 0; row <= 10; row++){
+                    if(in_bounds(row, col)){
+                        int index = get_index(x_coord + col, y_coord + row);
+                        if(simulation->particles[index].id == empty_id){
+                            p_set(temp, index);
+                            return;
+                        }
+                    }
+                }
+            }
+            return;
+        }
     }
 
     // Try opossite diagonal
@@ -542,6 +645,26 @@ void update_coal(particle_t *p, int x, int y){
             p->velocity.y += gravity;
             p_set(*p, j);
             p_set(temp, i);
+            return;
+        }
+
+        if(temp.id == water_id || temp.id == oil_id){
+            p->velocity.x += -dir * 0.2;
+            p->velocity.y += gravity * 1.5;
+            p_set(*p, j);
+            p_set(new_empty(), i);
+            // try to take water out
+            for(int col = -10; col <= 10; col++){
+                for(int row = 0; row <= 10; row++){
+                    if(in_bounds(row, col)){
+                        int index = get_index(x_coord + col, y_coord + row);
+                        if(simulation->particles[index].id == empty_id){
+                            p_set(temp, index);
+                            return;
+                        }
+                    }
+                }
+            }
             return;
         }
     }
@@ -560,6 +683,7 @@ void update_coal(particle_t *p, int x, int y){
 #define __oil_max_fall_speed -10.0
 #define __oil_sink_chance 0.05
 void update_oil(particle_t *p, int x, int y){
+    p->updated = 1;
     int i = get_index(x, y);
 
     // limit velocities if needed
@@ -778,6 +902,7 @@ void update_oil(particle_t *p, int x, int y){
 #define __coal_burn_chance 0.01
 #define __oil_burn_chance 0.9
 void update_fire(particle_t *p, int x, int y){
+    p->updated = 1;
     int i = get_index(x, y);
 
     // limit velocities if needed
