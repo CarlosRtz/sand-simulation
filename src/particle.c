@@ -49,7 +49,7 @@ void update_simulation(){
 }
 
 int in_bounds(int x, int y){
-    return (x >= 0 && x <= simulation->width && y >= 0 && y < simulation->height);    
+    return (x >= 0 && x < simulation->width && y >= 0 && y < simulation->height);    
 }
 
 int get_index(int x, int y){
@@ -70,9 +70,9 @@ void p_set(particle_t p, int i){
 particle_t new_empty(){
     particle_t p = {
         .id = empty_id,
-        .color = {.r=0, .g=0, .b=0, .a=255},
+        .color = {.r=80, .g=200, .b=255, .a=255},
         .velocity = {.x=0, .y=0},
-        .life_time = 1,
+        .life_time = 1.0,
         .updated = 0,
         .update = update_empty
     };
@@ -84,7 +84,7 @@ particle_t new_sand(){
         .id = sand_id,
         .color = {.r=230, .g=205, .b=50, .a=255},
         .velocity = {.x=0.0, .y=0.0},
-        .life_time = 1,
+        .life_time = 1.0,
         .updated = 0,
         .update = update_sand
     };
@@ -96,7 +96,7 @@ particle_t new_water(){
         .id = water_id,
         .color = {.r=50, .g=120, .b=170, .a=255},
         .velocity = {.x=0.0, .y=0.0},
-        .life_time = 1,
+        .life_time = 1.0,
         .updated = 0,
         .update = update_water
     };
@@ -121,7 +121,7 @@ particle_t new_oil(){
         .id = oil_id,
         .color = {.r=130, .g=130, .b=105, .a=255},
         .velocity = {.x=0.0, .y=0.0},
-        .life_time = 1,
+        .life_time = 1.0,
         .updated = 0,
         .update = update_oil
     };
@@ -143,12 +143,26 @@ particle_t new_fire(){
 }
 
 particle_t new_smoke(){
-    particle_t p;
+    particle_t p = {
+        .id = smoke_id,
+        .color = {.r=70, .g=70, .b=70, .a=255},
+        .velocity = {.x=0.0, .y=0.0},
+        .life_time = 1.0,
+        .updated = 0,
+        .update = update_smoke
+    };
     return p;
 }
 
 particle_t new_steam(){
-    particle_t p;
+    particle_t p = {
+        .id = steam_id,
+        .color = {.r=215, .g=215, .b=215, .a=255},
+        .velocity = {.x=0.0, .y=0.0},
+        .life_time = 1.0,
+        .updated = 0,
+        .update = update_smoke
+    };
     return p;
 }
 
@@ -192,7 +206,7 @@ void update_sand(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
         
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->velocity.x *= 0.8;
             p->velocity.y -= gravity;
             p_set(*p, j);
@@ -242,7 +256,7 @@ void update_sand(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->velocity.x += dir;
             p->velocity.y += gravity;
             p_set(*p, j);
@@ -281,7 +295,7 @@ void update_sand(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->velocity.x -= dir;
             p->velocity.y += gravity;
             p_set(*p, j);
@@ -348,7 +362,7 @@ void update_water(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
         
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->life_time = 1.0;
             p->velocity.x *= 0.8;
             p->velocity.y -= gravity;
@@ -390,7 +404,7 @@ void update_water(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->life_time = 1.0;
             p->velocity.x += dir;
             p->velocity.y += gravity;
@@ -420,7 +434,7 @@ void update_water(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->life_time = 1.0;
             p->velocity.x += -dir;
             p->velocity.y += gravity;
@@ -451,7 +465,7 @@ void update_water(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             int k = abs(x_coord - x);
             int blocked_path = 0;
             for(int n = 1; n < k; n++){
@@ -493,7 +507,7 @@ void update_water(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             int k = abs(x_coord - x);
             int blocked_path = 0;
             for(int n = 1; n < k; n++){
@@ -563,7 +577,7 @@ void update_coal(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
         
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->velocity.x *= 0.8;
             p->velocity.y -= gravity;
             p_set(*p, j);
@@ -613,7 +627,7 @@ void update_coal(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->velocity.x += dir;
             p->velocity.y += gravity;
             p_set(*p, j);
@@ -652,7 +666,7 @@ void update_coal(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->velocity.x -= dir;
             p->velocity.y += gravity;
             p_set(*p, j);
@@ -720,7 +734,7 @@ void update_oil(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
         
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->life_time = 1.0;
             p->velocity.x *= 0.8;
             p->velocity.y -= gravity;
@@ -761,7 +775,7 @@ void update_oil(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->life_time = 1.0;
             p->velocity.x += dir * 0.5;
             p->velocity.y += gravity;
@@ -791,7 +805,7 @@ void update_oil(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->life_time = 1.0;
             p->velocity.x += -dir * 0.5;
             p->velocity.y += gravity;
@@ -822,7 +836,7 @@ void update_oil(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             int k = abs(x_coord - x);
             int blocked_path = 0;
             for(int n = 1; n < k; n++){
@@ -864,7 +878,7 @@ void update_oil(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
 
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             int k = abs(x_coord - x);
             int blocked_path = 0;
             for(int n = 1; n < k; n++){
@@ -914,10 +928,33 @@ void update_oil(particle_t *p, int x, int y){
 // Turns into steam on the water
 #define __fire_max_fall_speed -2.0
 #define __coal_burn_chance 0.01
-#define __oil_burn_chance 0.9
+#define __oil_burn_chance 0.3
+#define __create_smoke_chance 0.010
 void update_fire(particle_t *p, int x, int y){
     p->updated = 1;
     int i = get_index(x, y);
+
+    if(rand() < RAND_MAX * __create_smoke_chance * 0.10){
+        int coords[] = {
+            get_index(x, y + 1),
+            get_index(x + 1, y + 1),
+            get_index(x - 1, y + 1),
+            get_index(x + 1, y),
+            get_index(x - 1, y),
+            get_index(x + 1, y - 1),
+            get_index(x - 1, y - 1)
+        };
+        int xs[] = {x, x + 1, x - 1, x + 1, x - 1, x + 1, x - 1};
+        int ys[] = {y + 1, y + 1, y + 1, y, y, y - 1, y - 1};
+        for(int n = 0; n < 7; n++){
+            if(in_bounds(xs[n], ys[n])){
+                if(simulation->particles[coords[n]].id == empty_id){
+                    p_set(new_smoke(), coords[n]);
+                    break;
+                }
+            }
+        }
+    }
 
     // limit velocities if needed
     if(p->velocity.y > 0.0) p->velocity.y = 0.0;
@@ -931,6 +968,12 @@ void update_fire(particle_t *p, int x, int y){
         j = get_index(x, y - 1);
         particle_t temp = simulation->particles[j];
 
+        if(temp.id == empty_id){
+            if(rand() < RAND_MAX * __create_smoke_chance){
+                p_set(new_smoke(), j);
+            }
+        }
+
         if(temp.id == coal_id){
             if(rand() < RAND_MAX * __coal_burn_chance){
                 p->life_time = 10.0;
@@ -943,11 +986,13 @@ void update_fire(particle_t *p, int x, int y){
             if(rand() < RAND_MAX * __oil_burn_chance){
                 p->life_time = 1.0;
                 p_set(new_fire(), j);
+                simulation->particles[j].life_time = 0.01;
+                // return;
             }
         }
 
         if(temp.id == water_id){
-            *p = new_empty();
+            *p = new_steam();
             p_set(*p, i);
             return;
         }
@@ -970,11 +1015,13 @@ void update_fire(particle_t *p, int x, int y){
             if(rand() < RAND_MAX * __oil_burn_chance){
                 p->life_time = 1.0;
                 p_set(new_fire(), j);
+                simulation->particles[j].life_time = 0.01;
+                // return;
             }
         }
 
         if(temp.id == water_id){
-            *p = new_empty();
+            *p = new_steam();
             p_set(*p, i);
             return;
         }
@@ -984,6 +1031,12 @@ void update_fire(particle_t *p, int x, int y){
         j = get_index(x - 1, y);
         particle_t temp = simulation->particles[j];
 
+        if(temp.id == empty_id){
+            if(rand() < RAND_MAX * __create_smoke_chance){
+                p_set(new_smoke(), j);
+            }
+        }
+
         if(temp.id == coal_id){
             if(rand() < RAND_MAX * __coal_burn_chance){
                 p->life_time = 10.0;
@@ -996,11 +1049,13 @@ void update_fire(particle_t *p, int x, int y){
             if(rand() < RAND_MAX * __oil_burn_chance){
                 p->life_time = 1.0;
                 p_set(new_fire(), j);
+                simulation->particles[j].life_time = 0.01;
+                // return;
             }
         }
 
         if(temp.id == water_id){
-            *p = new_empty();
+            *p = new_steam();
             p_set(*p, i);
             return;
         }
@@ -1010,6 +1065,12 @@ void update_fire(particle_t *p, int x, int y){
         j = get_index(x, y + 1);
         particle_t temp = simulation->particles[j];
 
+        if(temp.id == empty_id){
+            if(rand() < RAND_MAX * __create_smoke_chance){
+                p_set(new_smoke(), j);
+            }
+        }
+
         if(temp.id == coal_id){
             if(rand() < RAND_MAX * __coal_burn_chance){
                 p->life_time = 10.0;
@@ -1022,11 +1083,13 @@ void update_fire(particle_t *p, int x, int y){
             if(rand() < RAND_MAX * __oil_burn_chance){
                 p->life_time = 1.0;
                 p_set(new_fire(), j);
+                simulation->particles[j].life_time = 0.01;
+                // return;
             }
         }
 
         if(temp.id == water_id){
-            *p = new_empty();
+            *p = new_steam();
             p_set(*p, i);
             return;
         }
@@ -1037,6 +1100,12 @@ void update_fire(particle_t *p, int x, int y){
         j = get_index(x + 1, y - 1);
         particle_t temp = simulation->particles[j];
 
+        if(temp.id == empty_id){
+            if(rand() < RAND_MAX * __create_smoke_chance){
+                p_set(new_smoke(), j);
+            }
+        }
+
         if(temp.id == coal_id){
             if(rand() < RAND_MAX * __coal_burn_chance){
                 p->life_time = 10.0;
@@ -1049,11 +1118,13 @@ void update_fire(particle_t *p, int x, int y){
             if(rand() < RAND_MAX * __oil_burn_chance){
                 p->life_time = 1.0;
                 p_set(new_fire(), j);
+                simulation->particles[j].life_time = 0.01;
+                // return;
             }
         }
 
         if(temp.id == water_id){
-            *p = new_empty();
+            *p = new_steam();
             p_set(*p, i);
             return;
         }
@@ -1063,6 +1134,12 @@ void update_fire(particle_t *p, int x, int y){
         j = get_index(x - 1, y - 1);
         particle_t temp = simulation->particles[j];
 
+        if(temp.id == empty_id){
+            if(rand() < RAND_MAX * __create_smoke_chance){
+                p_set(new_smoke(), j);
+            }
+        }
+
         if(temp.id == coal_id){
             if(rand() < RAND_MAX * __coal_burn_chance){
                 p->life_time = 10.0;
@@ -1075,11 +1152,13 @@ void update_fire(particle_t *p, int x, int y){
             if(rand() < RAND_MAX * __oil_burn_chance){
                 p->life_time = 1.0;
                 p_set(new_fire(), j);
+                simulation->particles[j].life_time = 0.01;
+                // return;
             }
         }
 
         if(temp.id == water_id){
-            *p = new_empty();
+            *p = new_steam();
             p_set(*p, i);
             return;
         }
@@ -1089,6 +1168,12 @@ void update_fire(particle_t *p, int x, int y){
         j = get_index(x + 1, y + 1);
         particle_t temp = simulation->particles[j];
 
+        if(temp.id == empty_id){
+            if(rand() < RAND_MAX * __create_smoke_chance){
+                p_set(new_smoke(), j);
+            }
+        }
+
         if(temp.id == coal_id){
             if(rand() < RAND_MAX * __coal_burn_chance){
                 p->life_time = 10.0;
@@ -1101,11 +1186,13 @@ void update_fire(particle_t *p, int x, int y){
             if(rand() < RAND_MAX * __oil_burn_chance){
                 p->life_time = 1.0;
                 p_set(new_fire(), j);
+                simulation->particles[j].life_time = 0.01;
+                // return;
             }
         }
 
         if(temp.id == water_id){
-            *p = new_empty();
+            *p = new_steam();
             p_set(*p, i);
             return;
         }
@@ -1115,6 +1202,12 @@ void update_fire(particle_t *p, int x, int y){
         j = get_index(x - 1, y + 1);
         particle_t temp = simulation->particles[j];
 
+        if(temp.id == empty_id){
+            if(rand() < RAND_MAX * __create_smoke_chance){
+                p_set(new_smoke(), j);
+            }
+        }
+
         if(temp.id == coal_id){
             if(rand() < RAND_MAX * __coal_burn_chance){
                 p->life_time = 10.0;
@@ -1127,11 +1220,13 @@ void update_fire(particle_t *p, int x, int y){
             if(rand() < RAND_MAX * __oil_burn_chance){
                 p->life_time = 1.0;
                 p_set(new_fire(), j);
+                simulation->particles[j].life_time = 0.01;
+                // return;
             }
         }
 
         if(temp.id == water_id){
-            *p = new_empty();
+            *p = new_steam();
             p_set(*p, i);
             return;
         }
@@ -1146,29 +1241,196 @@ void update_fire(particle_t *p, int x, int y){
         j = get_index(x_coord, y_coord);
         particle_t temp = simulation->particles[j];
         
-        if(temp.id == empty_id){
+        if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->velocity.y -= gravity * 0.25;
-            p->life_time -= 0.030;
-            if(p->life_time < 0.0){
-                *p = new_empty();
-            }
+            // p->life_time -= 0.030;
+            // if(p->life_time < 0.0){
+            //     *p = new_empty();
+            // }
             p_set(*p, j);
             p_set(temp, i);
             return;
         }
 
         if(temp.id == water_id){
-            *p = new_empty();
+            *p = new_steam();
             p_set(*p, i);
             return;
         }
     }
 
     p->life_time -= 0.030;
-    p->velocity.y += gravity;
     if(p->life_time < 0.0){
-        *p = new_empty();
+        if(rand() < RAND_MAX * __create_smoke_chance * 0.25){
+            *p = new_smoke();
+        }else{
+            *p = new_empty();
+        }
+        p_set(*p, i);
+        return;
     }
+
+
+    p->velocity.y += gravity;
+    p_set(*p, i);
+    return;
+}
+
+/*      UPDATE SMOKE PARTICLE       */
+// Try to fill spaces like water
+// but goes up
+#define __smoke_max_rise_speed 2.0
+#define __smoke_max_spread 1.0
+void update_smoke(particle_t *p, int x, int y){
+    p->updated = 1;
+    int i = get_index(x, y);
+
+    p->life_time -= 0.005;
+    if(p->life_time < 0.0){
+        p_set(new_empty(), i);
+        return;
+    }
+
+    // limit velocities if needed
+    if(p->velocity.x > __smoke_max_spread) p->velocity.x = __smoke_max_spread;
+    if(p->velocity.x < - __smoke_max_spread) p->velocity.x = - __smoke_max_spread;
+    if(p->velocity.y < 0.0) p->velocity.y = 0.0;
+    if(p->velocity.y > __smoke_max_rise_speed) p->velocity.y = __smoke_max_rise_speed;
+
+    int j;
+    int x_off, y_off, x_coord, y_coord;
+    
+    x_off = round(p->velocity.x);
+    y_off = round(p->velocity.y);
+
+    // Try moving up
+    x_coord = x + x_off;
+    y_coord = y + 1 + y_off;
+    
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+        
+        if(temp.id == empty_id){
+            p->life_time = 1.0;
+            p->velocity.x *= 0.6;
+            p->velocity.y += 0.3;
+            p_set(*p, j);
+            p_set(temp, i);
+            return;
+        }
+    }
+
+    // Try moving to the diagonal
+    // if x velocity is 0, choose a random direction;
+    if(p->velocity.x == 0.0){
+        int r = rand() % 2 ? -1 : 1;
+        p->velocity.x = r * (float)rand()/RAND_MAX * p->velocity.y;
+        if(p->velocity.x > __smoke_max_spread) p->velocity.x = __smoke_max_spread;
+        if(p->velocity.x < - __smoke_max_spread) p->velocity.x = - __smoke_max_spread;
+    }
+
+    int dir = p->velocity.x > 0.0 ? 1 : -1;
+    x_off = round(p->velocity.x);
+
+    x_coord = x_off == 0 ? x + dir : x + x_off;
+    y_coord = y + 1;
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == empty_id){
+            p->velocity.x += dir;
+            p->velocity.y += 0.3;
+            p_set(*p, j);
+            p_set(temp, i);
+            return;
+        }
+    }
+
+    // Try opossite diagonal
+    float old_velocity = p->velocity.x;
+    p->velocity.x *= -0.5;
+    x_off = round(p->velocity.x);
+    x_coord = x_off == 0 ? x - dir : x + x_off;
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == empty_id){
+            p->velocity.x += -dir;
+            p->velocity.y += 0.3;
+            p_set(*p, j);
+            p_set(temp, i);
+            return;
+        }
+    }
+
+    // Try moving to the side
+    p->velocity.x = old_velocity;
+    x_off = round(p->velocity.x);
+    x_coord = x_off == 0 ? x + dir : x + x_off;
+    y_coord = y;
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == empty_id){
+            int k = abs(x_coord - x);
+            int blocked_path = 0;
+            for(int n = 1; n < k; n++){
+                if(simulation->particles[get_index(x + n, y_coord)].id != empty_id){
+                    blocked_path = 1;
+                    break;
+                }
+            }
+            if(!blocked_path){
+                if(p->life_time < 0.0){
+                    p->velocity.x *= 0.5;
+                }else{
+                    p->velocity.x += dir;
+                }
+                p->velocity.y -= gravity * 0.25;
+                p_set(*p, j);
+                p_set(temp, i);
+                return;
+            }
+        }
+    }
+
+    // Try other side
+    p->velocity.x *= -0.5;
+    x_off = round(p->velocity.x);
+    x_coord = x_off == 0 ? x - dir : x + x_off;
+    if(in_bounds(x_coord, y_coord)){
+        j = get_index(x_coord, y_coord);
+        particle_t temp = simulation->particles[j];
+
+        if(temp.id == empty_id){
+            int k = abs(x_coord - x);
+            int blocked_path = 0;
+            for(int n = 1; n < k; n++){
+                if(simulation->particles[get_index(x + n, y_coord)].id != empty_id){
+                    blocked_path = 1;
+                    break;
+                }
+            }
+            if(!blocked_path){
+                if(p->life_time < 0.0){
+                    p->velocity.x *= 0.5;
+                }else{
+                    p->velocity.x -= dir;
+                }
+                p->velocity.y -= gravity * 0.25;
+                p_set(*p, j);
+                p_set(temp, i);
+                return;
+            }
+        }
+    }
+
+    p->velocity.y -= gravity * 0.25;
+    p->velocity.x = 0.0;
     p_set(*p, i);
     return;
 }
