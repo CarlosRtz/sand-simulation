@@ -1243,10 +1243,14 @@ void update_fire(particle_t *p, int x, int y){
         
         if(temp.id == empty_id || temp.id == smoke_id || temp.id == steam_id){
             p->velocity.y -= gravity * 0.25;
-            // p->life_time -= 0.030;
-            // if(p->life_time < 0.0){
-            //     *p = new_empty();
-            // }
+            p->life_time -= 0.03;
+            if(p->life_time < 0.0){
+                if(rand() < RAND_MAX * __create_smoke_chance * 0.25){
+                    *p = new_smoke();
+                }else{
+                    *p = new_empty();
+                }
+            }
             p_set(*p, j);
             p_set(temp, i);
             return;
@@ -1259,7 +1263,7 @@ void update_fire(particle_t *p, int x, int y){
         }
     }
 
-    p->life_time -= 0.030;
+    p->life_time -= 0.03;
     if(p->life_time < 0.0){
         if(rand() < RAND_MAX * __create_smoke_chance * 0.25){
             *p = new_smoke();
@@ -1270,7 +1274,6 @@ void update_fire(particle_t *p, int x, int y){
         return;
     }
 
-
     p->velocity.y += gravity;
     p_set(*p, i);
     return;
@@ -1279,7 +1282,7 @@ void update_fire(particle_t *p, int x, int y){
 /*      UPDATE SMOKE PARTICLE       */
 // Try to fill spaces like water
 // but goes up
-#define __smoke_max_rise_speed 2.0
+#define __smoke_max_rise_speed 1.0
 #define __smoke_max_spread 1.0
 void update_smoke(particle_t *p, int x, int y){
     p->updated = 1;
