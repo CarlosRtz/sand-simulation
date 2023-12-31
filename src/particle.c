@@ -806,6 +806,12 @@ void update_fire(particle_t *p, int x, int y){
                 p_set(new_fire(), j);
             }
         }
+
+        if(temp.id == water_id){
+            *p = new_empty();
+            p_set(*p, i);
+            return;
+        }
     }
 
     // Try to spread to each side
@@ -827,6 +833,12 @@ void update_fire(particle_t *p, int x, int y){
                 p_set(new_fire(), j);
             }
         }
+
+        if(temp.id == water_id){
+            *p = new_empty();
+            p_set(*p, i);
+            return;
+        }
     }
 
     if(in_bounds(x - 1, y)){
@@ -847,6 +859,12 @@ void update_fire(particle_t *p, int x, int y){
                 p_set(new_fire(), j);
             }
         }
+
+        if(temp.id == water_id){
+            *p = new_empty();
+            p_set(*p, i);
+            return;
+        }
     }
     // Try to spread up
     if(in_bounds(x, y + 1)){
@@ -866,6 +884,12 @@ void update_fire(particle_t *p, int x, int y){
                 p->life_time = 1.0;
                 p_set(new_fire(), j);
             }
+        }
+
+        if(temp.id == water_id){
+            *p = new_empty();
+            p_set(*p, i);
+            return;
         }
     }
 
@@ -888,6 +912,12 @@ void update_fire(particle_t *p, int x, int y){
                 p_set(new_fire(), j);
             }
         }
+
+        if(temp.id == water_id){
+            *p = new_empty();
+            p_set(*p, i);
+            return;
+        }
     }
 
     if(in_bounds(x - 1, y - 1)){
@@ -907,6 +937,12 @@ void update_fire(particle_t *p, int x, int y){
                 p->life_time = 1.0;
                 p_set(new_fire(), j);
             }
+        }
+
+        if(temp.id == water_id){
+            *p = new_empty();
+            p_set(*p, i);
+            return;
         }
     }
 
@@ -928,6 +964,12 @@ void update_fire(particle_t *p, int x, int y){
                 p_set(new_fire(), j);
             }
         }
+
+        if(temp.id == water_id){
+            *p = new_empty();
+            p_set(*p, i);
+            return;
+        }
     }
 
     if(in_bounds(x - 1, y + 1)){
@@ -948,6 +990,12 @@ void update_fire(particle_t *p, int x, int y){
                 p_set(new_fire(), j);
             }
         }
+
+        if(temp.id == water_id){
+            *p = new_empty();
+            p_set(*p, i);
+            return;
+        }
     }
 
     // try to move bellow
@@ -967,6 +1015,12 @@ void update_fire(particle_t *p, int x, int y){
             }
             p_set(*p, j);
             p_set(temp, i);
+            return;
+        }
+
+        if(temp.id == water_id){
+            *p = new_empty();
+            p_set(*p, i);
             return;
         }
     }
