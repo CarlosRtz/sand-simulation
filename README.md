@@ -3,8 +3,8 @@ A simple sand simulation game, inspired by Noita, to learn more about Cellular A
 
 # Compiling
 **Note:** Currently uses **GLFW**
-- To compile using gcc, run:
-    - `gcc ./src/main.c ./src/particle.c -o sand-sim -lglfw -lGL -lm`
+- To compile using gcc:
+    - Run `gcc ./src/main.c ./src/particle.c -o sand-sim -lglfw -lGL -lm`
     - The executable will be placed in the current directory
     - Run `./sand-sim`
 
