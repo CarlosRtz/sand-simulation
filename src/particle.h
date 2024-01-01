@@ -38,6 +38,7 @@ void update_simulation();
 int in_bounds(int x, int y);
 int get_index(int x, int y);
 void p_set(particle_t p, int i);
+void clear_particles();
 
 #define empty_id    (uint8_t)0
 #define sand_id     (uint8_t)1

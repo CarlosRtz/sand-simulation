@@ -66,6 +66,12 @@ void p_set(particle_t p, int i){
     simulation->texture_buffer[j + 3] = p.color.a;
 }
 
+void clear_particles(){
+    for(int i = 0; i < simulation->width * simulation->height; i++){
+        simulation->particles[i] = new_empty();
+    }
+}
+
 /*          Create particles            */
 particle_t new_empty(){
     particle_t p = {
