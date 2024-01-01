@@ -1,5 +1,5 @@
 # sand-simulation
-A simple sand simulation game, inspired by Noita, to learn more about Cellular Automata and the C programming language.
+A simple sand simulation game, inspired by Noita, to learn more about Cellular Automata and C language.
 
 # Compiling
 **Note:** Currently uses **GLFW**
