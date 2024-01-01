@@ -219,9 +219,14 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             if(action == GLFW_PRESS)
                 selected_particle = fire_id;
         break;
-        // case GLFW_KEY_BACKSPACE:
-        //     clear_particles();
-        // break;
+        case GLFW_KEY_BACKSPACE:
+            clear_particles();
+        break;
+        case GLFW_KEY_ESCAPE:
+            if(action == GLFW_PRESS){
+                glfwSetWindowShouldClose(window, GL_TRUE);
+            }
+        break;
     }
 }
 
@@ -256,13 +261,8 @@ void throw_particles(){
                     simulation->particles[index] = new_coal();
             break;
             case fire_id:
-                //if(k < 30){
                 if(in_bounds(i, j) && (simulation->particles[index].id == empty_id || simulation->particles[index].id == coal_id || simulation->particles[index].id == oil_id))
                     simulation->particles[index] = new_fire();    
-                //}else{
-                //    if(particle_sim[index].id == empty_id)
-                //        particle_sim[index] = p_create_smoke();
-                //}  
             break;
             case oil_id:
                 if(in_bounds(i, j) && simulation->particles[index].id == empty_id)
